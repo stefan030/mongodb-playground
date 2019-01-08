@@ -18,8 +18,6 @@ describe('Deleting records', () => {
 
         // Since .save is async mongoose method, we need to use promise (.then) in order for assert to work properly
         char.save().then(() => {
-            // True if its saved locally, and false if it is being saved to database (its NOT new record)
-            assert(char.isNew === false);
             // Tell Mocha that test is done since we are using async method
             done();
         });

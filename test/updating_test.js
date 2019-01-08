@@ -5,7 +5,7 @@ const connection = require('../connection.js');
 
 
 // Describe tests e.g. 'connect to db'...
-describe('Finding records', () => {
+describe('Updating records', () => {
 
     // Define variable globally so we have full access to it, even outside of beforeEach
     var char;
@@ -13,7 +13,8 @@ describe('Finding records', () => {
     beforeEach((done) => {
         // New instance of a MarioChar using MarioChar model
         char = new MarioChar({
-            name: 'Mario'
+            name: 'Mario',
+            weight: 50
         });
 
         // Since .save is async mongoose method, we need to use promise (.then) in order for assert to work properly
@@ -24,24 +25,27 @@ describe('Finding records', () => {
     });
 
     // Create tests - Each 'it' block represents single test
-    it('Finds one record from the database', (done) => {
+    it('Updates one record from the database', (done) => {
 
-        MarioChar.findOne({name: 'Mario'}).then((result) => {
-            assert(result.name === 'Mario');
-            done();
+        MarioChar.findOneAndReplace({name: 'Mario'}, {name: 'Luigi'}).then(() => {
+            MarioChar.findOne({_id: char._id}).then((result) => {
+                assert(result.name === 'Luigi');
+                done();
+            });
         });
 
     });
 
     // Next test goes here
 
-    it('Finds one record by ID from the database', (done) => {
-
-        // Mongoose .findOne does not require .toString as the Mongoose is cleaver enough to understand that we want to find a record with same ID
-        MarioChar.findOne({_id: char._id}).then((result) => {
-            // assert requires toString() so we get the actual string of that object ID (check Robomongo for more details about type of record)
-            assert(result._id.toString() == char._id.toString());
-            done();
+    // Create tests - Each 'it' block represents single test
+    it('Inrements the weight by 1', (done) => {
+        // $inc - update operator, take the current weight and increment it by 1 in this case
+        MarioChar.updateMany({}, { $inc: { weight: 1 } }).then(() => {
+           MarioChar.findOne({name: 'Mario'}).then((record) => {
+               assert(record.weight === 51);
+               done();
+           });
         });
 
     });
